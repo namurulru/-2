@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>영어 갈틱폰</title>
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f5f5f5;
+}
+
+.screen {
+  display: none;
+}
+
+.active {
+  display: block;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+}
+
+canvas {
+  border: 2px solid black;
+  background: white;
+}
+</style>
+</head>
+<body>
+
+<!-- 시작 화면 -->
+<div id="start" class="screen active">
+  <h1>영어 갈틱폰</h1>
+  <button onclick="goPlayer()">시작하기</button>
+</div>
+
+<!-- 플레이어 선택 -->
+<div id="player" class="screen">
+  <h2>플레이어 수 선택</h2>
+  <button onclick="setPlayers(3)">3명</button>
+  <button onclick="setPlayers(4)">4명</button>
+</div>
+
+<!-- 라운드 선택 -->
+<div id="round" class="screen">
+  <h2>라운드 선택</h2>
+  <button onclick="setRounds(2)">2</button>
+  <button onclick="setRounds(3)">3</button>
+  <button onclick="setRounds(4)">4</button>
+</div>
+
+<!-- 문장 입력 -->
+<div id="input" class="screen">
+  <h2>단어 또는 문장 입력</h2>
+  <input id="textInput">
+  <br>
+  <button onclick="saveText()">입력!</button>
+</div>
+
+<!-- 넘기기 -->
+<div id="pass" class="screen">
+  <h2>다음 사람에게 넘기세요</h2>
+  <button onclick="nextStep()">넘겼다면 누르기</button>
+</div>
+
+<!-- 그림 -->
+<div id="draw" class="screen">
+  <h2>그림 그리기</h2>
+  <canvas id="canvas" width="300" height="300"></canvas>
+  <br>
+  <button onclick="finishDraw()">완료</button>
+</div>
+
+<!-- 결과 -->
+<div id="result" class="screen">
+  <h2 id="resultText"></h2>
+</div>
+
+<script>
+let playerCount = 0;
+let roundCount = 0;
+let currentRound = 0;
+let step = "text";
+let chains = [];
+let currentPlayer = 0;
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function goPlayer() {
+  show("player");
+}
+
+function setPlayers(n) {
+  playerCount = n;
+  show("round");
+}
+
+function setRounds(n) {
+  roundCount = n;
+  chains = Array.from({length: playerCount}, () => []);
+  show("input");
+}
+
+function saveText() {
+  let text = document.getElementById("textInput").value;
+  chains[currentPlayer].push(text);
+  document.getElementById("textInput").value = "";
+  show("pass");
+}
+
+function nextStep() {
+  currentPlayer = (currentPlayer + 1) % playerCount;
+
+  if(step === "text") {
+    step = "draw";
+    show("draw");
+  } else {
+    step = "text";
+    currentRound++;
+    if(currentRound >= roundCount) {
+      endGame();
+      return;
+    }
+    show("input");
+  }
+}
+
+// 그림 기능
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let drawing = false;
+
+canvas.addEventListener("mousedown", () => drawing = true);
+canvas.addEventListener("mouseup", () => drawing = false);
+canvas.addEventListener("mousemove", draw);
+
+function draw(e) {
+  if(!drawing) return;
+  ctx.fillRect(e.offsetX, e.offsetY, 4, 4);
+}
+
+function finishDraw() {
+  chains[currentPlayer].push("그림");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  show("pass");
+}
+
+function endGame() {
+  let first = chains[0][0];
+  document.getElementById("resultText").innerText =
+    "단어는 '" + first + "' 였습니다!";
+  show("result");
+}
+</script>
+
+</body>
+</html>
