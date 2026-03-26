@@ -3,123 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>영어 갈틱폰 완성본 - 드로잉 강화</title>
+    <title>영어 갈틱폰 - 아이폰 최적화</title>
     <style>
-        /* 기본 스타일 */
-        body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; touch-action: manipulation; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
         .screen { display: none; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .active { display: block !important; }
         
-        /* 버튼 스타일 */
-        button { padding: 12px 20px; margin: 8px; font-size: 16px; border-radius: 12px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; -webkit-appearance: none; }
-        button:active { background: #0056b3; }
-        
-        /* 캔버스 및 입력창 */
-        canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; cursor: crosshair; display: block; margin: 0 auto; }
-        input { padding: 12px; font-size: 18px; border-radius: 10px; border: 1px solid #ddd; width: 85%; margin-bottom: 15px; }
+        /* 버튼 크기를 키워 터치 미스를 방지 */
+        button { padding: 16px 28px; margin: 10px; font-size: 18px; border-radius: 15px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; width: 80%; max-width: 250px; }
+        button:active { background: #0056b3; transform: scale(0.98); }
 
-        /* 🔥 드로잉 도구 스타일 (새로 추가) */
-        .toolbar { margin: 10px auto; width: 300px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-        
-        /* 색상 팔레트 */
-        .color-palette { display: flex; justify-content: center; gap: 5px; margin-top: 5px; }
-        .color-box { width: 30px; height: 30px; border-radius: 15px; border: 2px solid #ddd; cursor: pointer; }
-        .color-box.active { border-color: #333; transform: scale(1.1); } /* 선택된 색상 강조 */
-
-        /* 도구 버튼 (펜, 지우개) */
-        .tool-btn { background: #666; font-size: 14px; padding: 8px 15px; }
-        .tool-btn.active { background: #007aff; } /* 선택된 도구 강조 */
-
-        /* 결과 화면 이미지 스타일 */
-        #finalChain img { border: 1px solid #eee; margin: 5px; max-width: 200px; }
+        canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; display: block; margin: 10px auto; }
+        .toolbar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+        .color-box { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; }
+        .color-box.active { border: 3px solid #007aff; transform: scale(1.1); }
     </style>
 </head>
 <body>
 
     <div id="start" class="screen active">
         <h1>🎮 영어 갈틱폰</h1>
-        <p>시작하기 버튼이 안 눌린다면<br>새로고침을 꼭 해주세요!</p>
+        <p style="color: #666;">아이폰에서 안 눌린다면<br>화면을 아래로 당겨 새로고침 하세요!</p>
         <button id="startBtn">시작하기</button>
     </div>
 
     <div id="player" class="screen">
         <h2>플레이어 수</h2>
-        <button onclick="setPlayers(3)">3명</button>
-        <button onclick="setPlayers(4)">4명</button>
+        <button class="player-opt" data-num="3">3명</button>
+        <button class="player-opt" data-num="4">4명</button>
     </div>
 
     <div id="round" class="screen">
         <h2>라운드 선택</h2>
-        <button onclick="setRounds(2)">2라운드</button>
-        <button onclick="setRounds(3)">3라운드</button>
+        <button class="round-opt" data-num="2">2라운드</button>
+        <button class="round-opt" data-num="3">3라운드</button>
     </div>
 
     <div id="input" class="screen">
         <h2 id="inputTitle">첫 문장 입력</h2>
         <div id="textPreview"></div>
-        <input id="textInput" placeholder="영어 또는 한글 입력...">
-        <button onclick="saveText()">입력 완료</button>
+        <input id="textInput" style="padding:12px; width:80%; font-size:18px; margin-bottom:10px;" placeholder="입력하세요...">
+        <button id="saveTextBtn">입력 완료</button>
     </div>
 
     <div id="pass" class="screen">
         <h2>📢 폰을 넘기세요!</h2>
-        <button onclick="renderStep()">준비 완료</button>
+        <button id="nextPlayerBtn">준비 완료</button>
     </div>
 
     <div id="draw" class="screen">
         <h2>그림 그리기</h2>
         <div id="drawPreview" style="font-weight:bold; margin-bottom:10px;"></div>
-        
         <canvas id="canvas" width="300" height="300"></canvas>
-        
         <div class="toolbar">
-            <div class="tool-btn-group">
-                <button id="penBtn" class="tool-btn active" onclick="setPen()">✏️ 펜</button>
-                <button id="eraserBtn" class="tool-btn" onclick="setEraser()">🧽 지우개</button>
-            </div>
-            
-            <div class="color-palette">
-                <div class="color-box active" style="background: black;" onclick="changeColor('black', this)"></div>
-                <div class="color-box" style="background: red;" onclick="changeColor('red', this)"></div>
-                <div class="color-box" style="background: blue;" onclick="changeColor('blue', this)"></div>
-                <div class="color-box" style="background: green;" onclick="changeColor('green', this)"></div>
-                <div class="color-box" style="background: yellow;" onclick="changeColor('yellow', this)"></div>
-            </div>
+            <button id="penBtn" style="width:auto; background:#555; padding:10px;">✏️ 펜</button>
+            <button id="eraserBtn" style="width:auto; background:#888; padding:10px;">🧽 지우개</button>
         </div>
-        
-        <button onclick="finishDraw()" style="background:#28a745; margin-top: 15px;">그림 완료</button>
+        <div class="toolbar">
+            <div class="color-box active" style="background: black;" data-color="black"></div>
+            <div class="color-box" style="background: red;" data-color="red"></div>
+            <div class="color-box" style="background: blue;" data-color="blue"></div>
+            <div class="color-box" style="background: green;" data-color="green"></div>
+        </div>
+        <button id="finishDrawBtn" style="background:#28a745;">그림 완료</button>
     </div>
 
     <div id="result" class="screen">
         <h2>🏁 결과 확인</h2>
-        <div id="finalChain" style="text-align:left; margin:20px 0;"></div>
+        <div id="finalChain" style="text-align:left;"></div>
         <button onclick="location.reload()">다시 하기</button>
     </div>
 
 <script>
-    // 페이지 로드 후 시작하기 버튼 이벤트 연결 (캐시 문제 방지)
-    window.onload = function() {
-        console.log("게임 로드 완료");
-        const startBtn = document.getElementById('startBtn');
-        if(startBtn) {
-            startBtn.addEventListener('click', function() {
-                showScreen('player');
-            });
-        }
-        // 그림판 초기화 함수 호출
-        initCanvas();
-    };
-
+    // 전역 변수
     let gameChain = [];
     let totalSteps = 0;
     let currentStep = 0;
+    let canvas, ctx;
+    let drawing = false;
+    let currentColor = 'black';
 
     // 화면 전환 함수
     function showScreen(id) {
-        const screens = document.querySelectorAll(".screen");
-        screens.forEach(s => s.classList.remove("active"));
-        const target = document.getElementById(id);
-        if(target) target.classList.add("active");
+        document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        window.scrollTo(0, 0); // 화면 상단으로 이동
     }
 
-    function setPlayers(n) { showScreen("round"); }
+    // 아이폰/모바일 클릭 지연 방지 및 이벤트 바인딩
+    window.addEventListener('load', function() {
+        console.log("App Loaded");
+
+        // 시작하기 버튼
+        const startBtn = document.getElementById('startBtn');
+        startBtn.addEventListener('click', () => showScreen('player'));
+        startBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            showScreen('player');
+        });
+
+        // 인원 선택
+        document.querySelectorAll('.player-opt').forEach(btn => {
+            btn.addEventListener('click', () => showScreen('round'));
+        });
+
+        // 라운드 선택
+        document.querySelectorAll('.round-opt').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                totalSteps = parseInt(e.target.dataset.num) * 2;
+                gameChain = [];
+                currentStep = 0;
+                showScreen('input');
+            });
+        });
+
+        // 문장 저장
+        document.getElementById('saveTextBtn').addEventListener('click', saveText);
+
+        // 다음 플레이어
+        document.getElementById('nextPlayerBtn').addEventListener('click', renderStep);
+
+        // 그림 완료
+        document.getElementById('finishDrawBtn').addEventListener('click', finishDraw);
+
+        // 펜/지우개/색상
+        document.getElementById('penBtn').addEventListener('click', setPen);
+        document.getElementById('eraserBtn').addEventListener('click', setEraser);
+        document.querySelectorAll('.color-box').forEach(box => {
+            box.addEventListener('click', (e) => {
+                document.querySelectorAll('.color-box').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                changeColor(e.target.dataset.color);
+            });
+        });
+
+        initCanvas();
+    });
+
+    function saveText() {
+        const input = document.getElementById('textInput');
+        if(!input.value.trim()) return alert("내용을 적어주세요!");
+        gameChain.push({ type: 'text', content: input.value });
+        input.value = "";
+        next();
+    }
+
+    function finishDraw() {
+        gameChain.push({ type: 'image', content: canvas.toDataURL() });
+        ctx.clearRect(0,0,300,300);
+        setPen();
+        next();
+    }
+
+    function next() {
+        currentStep++;
+        if(currentStep >= totalSteps) endGame();
+        else showScreen("pass");
+    }
+
+    function renderStep() {
+        const last = gameChain[gameChain.length - 1];
+        if(last.type === 'text') {
+            document.getElementById("drawPreview").innerText = "제시어: " + last.content;
+            showScreen("draw");
+        } else {
+            document.getElementById("inputTitle").innerText = "그림 보고 해석하기";
+            document.getElementById("textPreview").innerHTML = `<img src="${last.content}" width="200">`;
+            showScreen("input");
+        }
+    }
+
+    function endGame() {
+        let res = "";
+        gameChain.forEach(item => {
+            if(item.type === 'text') res += `<p><b>문장:</b> ${item.content}</p>`;
+            else res += `<img src="${item.content}" width="200"><br>`;
+        });
+        document.getElementById('finalChain').innerHTML = res;
+        showScreen('result');
+    }
+
+    // 캔버스 로직
+    function initCanvas() {
+        canvas = document.getElementById("canvas");
+        ctx = canvas.getContext("2d");
+        ctx.lineWidth = 3;
+        ctx.lineCap = "round";
+
+        const getXY = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return [clientX - rect.left, clientY - rect.top];
+        };
+
+        const start = (e) => { drawing = true; ctx.beginPath(); const [x,y] = getXY(e); ctx.moveTo(x,y); };
+        const move = (e) => { if(!drawing) return; e.preventDefault(); const [x,y] = getXY(e); ctx.lineTo(x,y); ctx.stroke(); };
+        const end = () => { drawing = false; };
+
+        canvas.addEventListener("touchstart", start, {passive:false});
+        canvas.addEventListener("touchmove", move, {passive:false});
+        canvas.addEventListener("touchend", end);
+        canvas.addEventListener("mousedown", start);
+        canvas.addEventListener("mousemove", move);
+        window.addEventListener("mouseup", end);
+    }
+
+    function changeColor(c) { currentColor = c; ctx.strokeStyle = c; setPen(); }
+    function setPen() { ctx.globalCompositeOperation = "source-over"; ctx.lineWidth = 3; }
+    function setEraser() { ctx.globalCompositeOperation = "destination-out"; ctx.lineWidth = 15; }
+</script>
+</body>
+</html>
