@@ -1,239 +1,109 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>영어 갈틱폰</title>
-
-<style>
-body {
-  font-family: sans-serif;
-  text-align: center;
-  background: #f5f5f5;
-}
-
-.screen { display: none; }
-.active { display: block; }
-
-button {
-  padding: 12px 20px;
-  margin: 10px;
-  font-size: 16px;
-  border-radius: 10px;
-}
-
-canvas {
-  border: 2px solid black;
-  background: white;
-  touch-action: none;
-}
-
-#preview {
-  margin: 10px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>영어 갈틱폰 - 릴레이 게임</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; touch-action: manipulation; }
+        .screen { display: none; background: white; padding: 20px; border-radius: 20px; shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        .active { display: block; }
+        button { padding: 12px 24px; margin: 10px; font-size: 16px; border-radius: 12px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; }
+        button:active { background: #0056b3; }
+        canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; }
+        input { padding: 12px; font-size: 18px; border-radius: 10px; border: 1px solid #ddd; width: 80%; margin-bottom: 10px; }
+        #preview { margin: 15px; min-height: 50px; font-size: 1.2em; color: #333; }
+        .info { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+    </style>
 </head>
-
 <body>
 
-<div id="start" class="screen active">
-  <h1>영어 갈틱폰</h1>
-  <button onclick="goPlayer()">시작하기</button>
-</div>
+    <div id="start" class="screen active">
+        <h1>🎮 영어 갈틱폰</h1>
+        <p>문장과 그림으로 이어지는 릴레이!</p>
+        <button onclick="goPlayer()">시작하기</button>
+    </div>
 
-<div id="player" class="screen">
-  <h2>플레이어 수</h2>
-  <button onclick="setPlayers(3)">3명</button>
-  <button onclick="setPlayers(4)">4명</button>
-</div>
+    <div id="player" class="screen">
+        <h2>플레이어 수</h2>
+        <button onclick="setPlayers(3)">3명</button>
+        <button onclick="setPlayers(4)">4명</button>
+    </div>
 
-<div id="round" class="screen">
-  <h2>라운드</h2>
-  <button onclick="setRounds(2)">2</button>
-  <button onclick="setRounds(3)">3</button>
-  <button onclick="setRounds(4)">4</button>
-</div>
+    <div id="round" class="screen">
+        <h2>라운드(전체 횟수)</h2>
+        <p class="info">문장-그림 세트 반복 횟수</p>
+        <button onclick="setRounds(2)">2회</button>
+        <button onclick="setRounds(3)">3회</button>
+        <button onclick="setRounds(4)">4회</button>
+    </div>
 
-<div id="input" class="screen">
-  <h2>문장 입력</h2>
+    <div id="input" class="screen">
+        <h2 id="inputTitle">첫 문장 입력</h2>
+        <div id="textPreview"></div>
+        <input id="textInput" placeholder="여기에 입력하세요...">
+        <p id="warning" style="color:red; display:none;">내용을 입력해주세요!</p>
+        <button onclick="saveText()">입력 완료</button>
+    </div>
 
-  <div id="preview"></div>
+    <div id="pass" class="screen">
+        <h2 style="color: #ff9500;">📢 폰을 넘기세요!</h2>
+        <p>다음 플레이어에게 기기를 전달하고<br>아래 버튼을 눌러주세요.</p>
+        <button onclick="renderStep()">전달 완료</button>
+    </div>
 
-  <input id="textInput">
-  <p id="warning" style="color:red; display:none;">문장을 입력하세요!</p>
+    <div id="draw" class="screen">
+        <h2>그림 그리기</h2>
+        <div id="drawPreview"></div>
+        <canvas id="canvas" width="300" height="300"></canvas><br>
+        <button onclick="setPen()" style="background:#555">✏️ 펜</button>
+        <button onclick="setEraser()" style="background:#888">🧽 지우개</button>
+        <button onclick="finishDraw()" style="background:#28a745">그림 완료</button>
+    </div>
 
-  <button onclick="saveText()">입력</button>
-</div>
-
-<div id="pass" class="screen">
-  <h2>다음 사람에게 넘기세요</h2>
-  <button onclick="nextStep()">넘겼다면 누르기</button>
-</div>
-
-<div id="draw" class="screen">
-  <h2>그림 그리기</h2>
-
-  <div id="preview"></div>
-
-  <canvas id="canvas" width="300" height="300"></canvas><br>
-
-  <button onclick="setPen()">펜</button>
-  <button onclick="setEraser()">지우개</button>
-  <button onclick="finishDraw()">완료</button>
-</div>
-
-<div id="result" class="screen">
-  <h2 id="resultText"></h2>
-</div>
+    <div id="result" class="screen">
+        <h2>🏁 게임 종료!</h2>
+        <div id="finalChain" style="text-align: left; margin-top: 20px;"></div>
+        <button onclick="location.reload()">다시 하기</button>
+    </div>
 
 <script>
 let playerCount = 0;
-let roundCount = 0;
-let currentRound = 0;
-let step = "text";
-let chains = [];
-let currentPlayer = 0;
+let totalRounds = 0; 
+let currentStep = 0; // 0부터 시작해서 (플레이어 수 * 라운드)까지 진행
+let chains = []; 
 
 function show(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
 function goPlayer() { show("player"); }
 
 function setPlayers(n) {
-  playerCount = n;
-  show("round");
+    playerCount = n;
+    show("round");
 }
 
 function setRounds(n) {
-  roundCount = n;
-  chains = Array.from({length: playerCount}, () => []);
-  show("input");
+    totalRounds = n * 2; // 문장+그림이 한 세트이므로 2를 곱함
+    // 각 체인은 각 플레이어의 '시작 단어'로부터 파생됨
+    chains = Array.from({length: playerCount}, () => []);
+    show("input");
+}
+
+// 현재 어떤 플레이어의 '체인'을 작업 중인지 계산
+function getTargetChainIdx() {
+    return (currentStep + Math.floor(currentStep / 1)) % playerCount;
 }
 
 function saveText() {
-  let text = document.getElementById("textInput").value;
-
-  if (text.trim() === "") {
-    let w = document.getElementById("warning");
-    w.style.display = "block";
-    setTimeout(() => w.style.display = "none", 2000);
-    return;
-  }
-
-  chains[currentPlayer].push(text);
-  document.getElementById("textInput").value = "";
-  show("pass");
-}
-
-function nextStep() {
-  currentPlayer = (currentPlayer + 1) % playerCount;
-
-  let chain = chains[currentPlayer];
-  let last = chain[chain.length - 1];
-
-  let preview = document.getElementById("preview");
-
-  if (step === "text") {
-    step = "draw";
-
-    preview.innerHTML = `<b>이 문장을 보고 그리세요:</b><br>${last}`;
-    show("draw");
-
-  } else {
-    step = "text";
-    currentRound++;
-
-    if (currentRound >= roundCount) {
-      endGame();
-      return;
+    let val = document.getElementById("textInput").value.trim();
+    if (!val) {
+        document.getElementById("warning").style.display = "block";
+        return;
     }
+    document.getElementById("warning").style.display = "none";
 
-    if (typeof last === "string") {
-      preview.innerHTML = "";
-    } else {
-      preview.innerHTML = `<img src="${last}" width="200">`;
-    }
-
-    show("input");
-  }
-}
-
-function endGame() {
-  let first = chains[0][0];
-  document.getElementById("resultText").innerText =
-    "단어는 '" + first + "' 였습니다!";
-  show("result");
-}
-
-/* ===== 그림 기능 (모바일 포함) ===== */
-
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-let drawing = false;
-let lastX = 0;
-let lastY = 0;
-
-function getPos(e) {
-  if (e.touches) {
-    return {
-      x: e.touches[0].clientX - canvas.getBoundingClientRect().left,
-      y: e.touches[0].clientY - canvas.getBoundingClientRect().top
-    };
-  }
-  return { x: e.offsetX, y: e.offsetY };
-}
-
-function startDraw(e) {
-  drawing = true;
-  let pos = getPos(e);
-  lastX = pos.x;
-  lastY = pos.y;
-}
-
-function endDraw() {
-  drawing = false;
-}
-
-function draw(e) {
-  if (!drawing) return;
-
-  let pos = getPos(e);
-
-  ctx.beginPath();
-  ctx.moveTo(lastX, lastY);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.stroke();
-
-  lastX = pos.x;
-  lastY = pos.y;
-}
-
-canvas.addEventListener("mousedown", startDraw);
-canvas.addEventListener("mouseup", endDraw);
-canvas.addEventListener("mousemove", draw);
-
-canvas.addEventListener("touchstart", startDraw);
-canvas.addEventListener("touchend", endDraw);
-canvas.addEventListener("touchmove", draw);
-
-function setPen() {
-  ctx.globalCompositeOperation = "source-over";
-}
-
-function setEraser() {
-  ctx.globalCompositeOperation = "destination-out";
-}
-
-function finishDraw() {
-  let img = canvas.toDataURL();
-  chains[currentPlayer].push(img);
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  show("pass");
-}
-</script>
-
-</body>
-</html>
+    // 현재 단계의 결과 저장
+    let chainIdx = (currentStep === 0) ? 0 : 0; // 로직 단순화를 위해 첫번째 체인만 추적(릴레이 방식)
