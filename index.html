@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>영어 갈틱폰 - 최종본</title>
+    <title>영어 갈틱폰</title>
     <style>
-        /* 기본 스타일 */
         body { font-family: -apple-system, sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; touch-action: manipulation; }
         .screen { display: none; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .active { display: block !important; }
@@ -15,8 +14,7 @@
 
         canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; display: block; margin: 10px auto; }
         input { padding: 15px; font-size: 18px; border-radius: 12px; border: 2px solid #ddd; width: 85%; outline: none; transition: border-color 0.3s; }
-
-        /* 🔥 흔들림 애니메이션 🔥 */
+        
         @keyframes shake {
             0% { transform: translateX(0); }
             20% { transform: translateX(-10px); }
@@ -26,8 +24,6 @@
             100% { transform: translateX(0); }
         }
         .shake { animation: shake 0.4s ease-in-out; border-color: #ff3b30 !important; }
-
-        /* 경고 문구 스타일 */
         #warning { color: #ff3b30; font-size: 14px; font-weight: bold; margin-top: 8px; display: none; }
 
         .toolbar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
@@ -38,8 +34,8 @@
 <body>
 
     <div id="start" class="screen active">
-        <h1>🎮 영어 갈틱폰</h1>
-        <p style="color: #666;">문장을 쓰고 그림을 그리며<br>릴레이를 완성해보세요!</p>
+        <h1>영어 갈틱폰</h1>
+        <p style="color: #666;">영어판 갈틱폰!</p>
         <button id="startBtn">시작하기</button>
     </div>
 
@@ -58,16 +54,16 @@
     <div id="input" class="screen">
         <h2 id="inputTitle">첫 문장 입력</h2>
         <div id="textPreview" style="margin-bottom: 10px;"></div>
-        <input id="textInput" placeholder="여기에 입력하세요..." autocomplete="off">
-        <div id="warning">⚠️ 내용을 입력해주세요!</div>
+        <input id="textInput" placeholder="문장 또는 단어를 입력하세요!" autocomplete="off">
+        <div id="warning">내용을 입력해주세요!</div>
         <br>
         <button id="saveTextBtn">입력 완료</button>
     </div>
 
     <div id="pass" class="screen">
-        <h2 style="color: #ff9500;">📢 폰을 넘기세요!</h2>
-        <p>다음 플레이어에게 전달한 뒤<br>아래 버튼을 누르세요.</p>
-        <button id="nextPlayerBtn">준비 완료</button>
+        <h2 style="color: #ff9500;">다음 사람에게 폰을 넘기세요!</h2>
+        <p>다음 사람에게 전달한 뒤<br>아래 버튼을 누르세요.</p>
+        <button id="nextPlayerBtn">전달완료</button>
     </div>
 
     <div id="draw" class="screen">
@@ -75,8 +71,8 @@
         <div id="drawPreview" style="font-weight:bold; margin-bottom:10px; font-size: 1.2em;"></div>
         <canvas id="canvas" width="300" height="300"></canvas>
         <div class="toolbar">
-            <button id="penBtn" style="width:auto; background:#555; padding:10px 15px;">✏️ 펜</button>
-            <button id="eraserBtn" style="width:auto; background:#888; padding:10px 15px;">🧽 지우개</button>
+            <button id="penBtn" style="width:auto; background:#555; padding:10px 15px;">펜</button>
+            <button id="eraserBtn" style="width:auto; background:#888; padding:10px 15px;">지우개</button>
         </div>
         <div class="toolbar">
             <div class="color-box active" style="background: black;" data-color="black"></div>
@@ -89,7 +85,7 @@
     </div>
 
     <div id="result" class="screen">
-        <h2>🏁 결과 확인</h2>
+        <h2>게임 결과</h2>
         <div id="finalChain" style="text-align:left; max-width: 300px; margin: auto;"></div>
         <button onclick="location.reload()" style="background: #666;">다시 하기</button>
     </div>
