@@ -3,21 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>영어 갈틱폰 완성본</title>
+    <title>영어 갈틱폰 완성본 - 드로잉 강화</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; }
+        /* 기본 스타일 */
+        body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; touch-action: manipulation; }
         .screen { display: none; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .active { display: block !important; }
-        button { padding: 15px 25px; margin: 8px; font-size: 16px; border-radius: 12px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; -webkit-appearance: none; }
-        canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; }
+        
+        /* 버튼 스타일 */
+        button { padding: 12px 20px; margin: 8px; font-size: 16px; border-radius: 12px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; -webkit-appearance: none; }
+        button:active { background: #0056b3; }
+        
+        /* 캔버스 및 입력창 */
+        canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; cursor: crosshair; display: block; margin: 0 auto; }
         input { padding: 12px; font-size: 18px; border-radius: 10px; border: 1px solid #ddd; width: 85%; margin-bottom: 15px; }
+
+        /* 🔥 드로잉 도구 스타일 (새로 추가) */
+        .toolbar { margin: 10px auto; width: 300px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        
+        /* 색상 팔레트 */
+        .color-palette { display: flex; justify-content: center; gap: 5px; margin-top: 5px; }
+        .color-box { width: 30px; height: 30px; border-radius: 15px; border: 2px solid #ddd; cursor: pointer; }
+        .color-box.active { border-color: #333; transform: scale(1.1); } /* 선택된 색상 강조 */
+
+        /* 도구 버튼 (펜, 지우개) */
+        .tool-btn { background: #666; font-size: 14px; padding: 8px 15px; }
+        .tool-btn.active { background: #007aff; } /* 선택된 도구 강조 */
+
+        /* 결과 화면 이미지 스타일 */
+        #finalChain img { border: 1px solid #eee; margin: 5px; max-width: 200px; }
     </style>
 </head>
 <body>
 
     <div id="start" class="screen active">
-        <h1>영어 갈틱폰</h1>
-        <p>게임 규칙은 갈틱폰 규칙을 참고하세요!</p>
+        <h1>🎮 영어 갈틱폰</h1>
+        <p>시작하기 버튼이 안 눌린다면<br>새로고침을 꼭 해주세요!</p>
         <button id="startBtn">시작하기</button>
     </div>
 
@@ -41,25 +62,42 @@
     </div>
 
     <div id="pass" class="screen">
-        <h2>다음 사람에게 폰을 넘기세요!</h2>
+        <h2>📢 폰을 넘기세요!</h2>
         <button onclick="renderStep()">준비 완료</button>
     </div>
 
     <div id="draw" class="screen">
         <h2>그림 그리기</h2>
         <div id="drawPreview" style="font-weight:bold; margin-bottom:10px;"></div>
-        <canvas id="canvas" width="300" height="300"></canvas><br>
-        <button onclick="finishDraw()">그림 완료</button>
+        
+        <canvas id="canvas" width="300" height="300"></canvas>
+        
+        <div class="toolbar">
+            <div class="tool-btn-group">
+                <button id="penBtn" class="tool-btn active" onclick="setPen()">✏️ 펜</button>
+                <button id="eraserBtn" class="tool-btn" onclick="setEraser()">🧽 지우개</button>
+            </div>
+            
+            <div class="color-palette">
+                <div class="color-box active" style="background: black;" onclick="changeColor('black', this)"></div>
+                <div class="color-box" style="background: red;" onclick="changeColor('red', this)"></div>
+                <div class="color-box" style="background: blue;" onclick="changeColor('blue', this)"></div>
+                <div class="color-box" style="background: green;" onclick="changeColor('green', this)"></div>
+                <div class="color-box" style="background: yellow;" onclick="changeColor('yellow', this)"></div>
+            </div>
+        </div>
+        
+        <button onclick="finishDraw()" style="background:#28a745; margin-top: 15px;">그림 완료</button>
     </div>
 
     <div id="result" class="screen">
         <h2>🏁 결과 확인</h2>
-        <div id="finalChain"></div>
+        <div id="finalChain" style="text-align:left; margin:20px 0;"></div>
         <button onclick="location.reload()">다시 하기</button>
     </div>
 
 <script>
-    // 페이지 로드가 끝나면 실행
+    // 페이지 로드 후 시작하기 버튼 이벤트 연결 (캐시 문제 방지)
     window.onload = function() {
         console.log("게임 로드 완료");
         const startBtn = document.getElementById('startBtn');
@@ -68,12 +106,15 @@
                 showScreen('player');
             });
         }
+        // 그림판 초기화 함수 호출
+        initCanvas();
     };
 
     let gameChain = [];
     let totalSteps = 0;
     let currentStep = 0;
 
+    // 화면 전환 함수
     function showScreen(id) {
         const screens = document.querySelectorAll(".screen");
         screens.forEach(s => s.classList.remove("active"));
@@ -82,70 +123,3 @@
     }
 
     function setPlayers(n) { showScreen("round"); }
-
-    function setRounds(n) {
-        totalSteps = n * 2;
-        gameChain = [];
-        currentStep = 0;
-        showScreen("input");
-    }
-
-    function saveText() {
-        const val = document.getElementById("textInput").value;
-        if(!val) return alert("입력해주세요!");
-        gameChain.push({ type: 'text', content: val });
-        document.getElementById("textInput").value = "";
-        next();
-    }
-
-    function finishDraw() {
-        const img = canvas.toDataURL();
-        gameChain.push({ type: 'image', content: img });
-        ctx.clearRect(0,0,300,300);
-        next();
-    }
-
-    function next() {
-        currentStep++;
-        if(currentStep >= totalSteps) endGame();
-        else showScreen("pass");
-    }
-
-    function renderStep() {
-        const last = gameChain[gameChain.length - 1];
-        if(last.type === 'text') {
-            document.getElementById("drawPreview").innerText = last.content;
-            showScreen("draw");
-        } else {
-            document.getElementById("textPreview").innerHTML = `<img src="${last.content}" width="200">`;
-            showScreen("input");
-        }
-    }
-
-    function endGame() {
-        let res = "";
-        gameChain.forEach(i => {
-            if(i.type === 'text') res += `<p>${i.content}</p>`;
-            else res += `<img src="${i.content}" width="150"><br>`;
-        });
-        document.getElementById("finalChain").innerHTML = res;
-        showScreen("result");
-    }
-
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    ctx.lineWidth = 3;
-    let drawing = false;
-    
-    canvas.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); });
-    canvas.addEventListener("touchmove", (e) => {
-        if(!drawing) return;
-        e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        ctx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
-        ctx.stroke();
-    });
-    canvas.addEventListener("touchend", () => drawing = false);
-</script>
-</body>
-</html>
