@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>영어 갈틱폰 - 아이폰 최적화</title>
+    <title>영어 갈틱폰</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
         .screen { display: none; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .active { display: block !important; }
         
-        /* 버튼 크기를 키워 터치 미스를 방지 */
         button { padding: 16px 28px; margin: 10px; font-size: 18px; border-radius: 15px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; width: 80%; max-width: 250px; }
         button:active { background: #0056b3; transform: scale(0.98); }
 
@@ -22,9 +21,9 @@
 <body>
 
     <div id="start" class="screen active">
-        <h1>🎮 영어 갈틱폰</h1>
-        <p style="color: #666;">아이폰에서 안 눌린다면<br>화면을 아래로 당겨 새로고침 하세요!</p>
-        <button id="startBtn">시작하기</button>
+        <h1>영어 갈틱폰</h1>
+        <p style="color: #666;">게임 규칙은 수행평가 종이를 참고하세요! </p>
+        <button id="startBtn">시작하기 </button>
     </div>
 
     <div id="player" class="screen">
@@ -47,7 +46,7 @@
     </div>
 
     <div id="pass" class="screen">
-        <h2>📢 폰을 넘기세요!</h2>
+        <h2>다음 사람에게 폰을 넘기세요!</h2>
         <button id="nextPlayerBtn">준비 완료</button>
     </div>
 
@@ -69,13 +68,12 @@
     </div>
 
     <div id="result" class="screen">
-        <h2>🏁 결과 확인</h2>
+        <h2>결과 확인</h2>
         <div id="finalChain" style="text-align:left;"></div>
         <button onclick="location.reload()">다시 하기</button>
     </div>
 
 <script>
-    // 전역 변수
     let gameChain = [];
     let totalSteps = 0;
     let currentStep = 0;
@@ -83,18 +81,15 @@
     let drawing = false;
     let currentColor = 'black';
 
-    // 화면 전환 함수
     function showScreen(id) {
         document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
         document.getElementById(id).classList.add("active");
-        window.scrollTo(0, 0); // 화면 상단으로 이동
+        window.scrollTo(0, 0);
     }
 
-    // 아이폰/모바일 클릭 지연 방지 및 이벤트 바인딩
     window.addEventListener('load', function() {
         console.log("App Loaded");
 
-        // 시작하기 버튼
         const startBtn = document.getElementById('startBtn');
         startBtn.addEventListener('click', () => showScreen('player'));
         startBtn.addEventListener('touchend', (e) => {
@@ -102,12 +97,10 @@
             showScreen('player');
         });
 
-        // 인원 선택
         document.querySelectorAll('.player-opt').forEach(btn => {
             btn.addEventListener('click', () => showScreen('round'));
         });
 
-        // 라운드 선택
         document.querySelectorAll('.round-opt').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 totalSteps = parseInt(e.target.dataset.num) * 2;
@@ -116,17 +109,10 @@
                 showScreen('input');
             });
         });
-
-        // 문장 저장
+        
         document.getElementById('saveTextBtn').addEventListener('click', saveText);
-
-        // 다음 플레이어
         document.getElementById('nextPlayerBtn').addEventListener('click', renderStep);
-
-        // 그림 완료
         document.getElementById('finishDrawBtn').addEventListener('click', finishDraw);
-
-        // 펜/지우개/색상
         document.getElementById('penBtn').addEventListener('click', setPen);
         document.getElementById('eraserBtn').addEventListener('click', setEraser);
         document.querySelectorAll('.color-box').forEach(box => {
