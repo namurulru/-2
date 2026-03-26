@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>영어 갈틱폰</title>
+    <title>영어 갈틱폰 완성본</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; touch-action: manipulation; }
+        body { font-family: sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; }
         .screen { display: none; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .active { display: block !important; }
-        button { padding: 12px 24px; margin: 8px; font-size: 16px; border-radius: 12px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; }
-        button:active { background: #0056b3; }
-        canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; cursor: crosshair; }
-        input { padding: 12px; font-size: 18px; border-radius: 10px; border: 1px solid #ddd; width: 85%; margin-bottom: 15px; outline: none; }
-        #previewArea { margin: 15px; min-height: 40px; }
-        .info-text { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        button { padding: 15px 25px; margin: 8px; font-size: 16px; border-radius: 12px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; -webkit-appearance: none; }
+        canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; }
+        input { padding: 12px; font-size: 18px; border-radius: 10px; border: 1px solid #ddd; width: 85%; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <div id="start" class="screen active">
-        <h1> 영어 갈틱폰</h1>
-        <p>영어 수행평가!</p>
-        <button onclick="showScreen('player')">시작하기</button>
+        <h1>🎮 영어 갈틱폰</h1>
+        <p>시작하기 버튼이 안 눌린다면<br>새로고침을 꼭 해주세요!</p>
+        <button id="startBtn">시작하기</button>
     </div>
 
     <div id="player" class="screen">
@@ -32,37 +29,123 @@
 
     <div id="round" class="screen">
         <h2>라운드 선택</h2>
-        <p class="info-text">전체 릴레이 횟수입니다.</p>
         <button onclick="setRounds(2)">2라운드</button>
         <button onclick="setRounds(3)">3라운드</button>
-        <button onclick="setRounds(4)">4라운드</button>
     </div>
 
     <div id="input" class="screen">
         <h2 id="inputTitle">첫 문장 입력</h2>
-        <div id="textPreview" style="margin-bottom:15px;"></div>
-        <input id="textInput" placeholder="여기에 입력하세요...">
-        <br>
+        <div id="textPreview"></div>
+        <input id="textInput" placeholder="영어 또는 한글 입력...">
         <button onclick="saveText()">입력 완료</button>
     </div>
 
     <div id="pass" class="screen">
-        <h2 style="color: #ff9500;"> 폰을 넘기세요!</h2>
-        <p>다음 사람에게 전달하고 누르세요.</p>
-        <button onclick="renderStep()">준비 완료!</button>
+        <h2>📢 폰을 넘기세요!</h2>
+        <button onclick="renderStep()">준비 완료</button>
     </div>
 
     <div id="draw" class="screen">
         <h2>그림 그리기</h2>
-        <div id="drawPreview" style="font-weight:bold; font-size:1.2em; margin-bottom:10px;"></div>
+        <div id="drawPreview" style="font-weight:bold; margin-bottom:10px;"></div>
         <canvas id="canvas" width="300" height="300"></canvas><br>
-        <button onclick="setPen()" style="background:#555">✏️ 펜</button>
-        <button onclick="setEraser()" style="background:#888">🧽 지우개</button>
-        <button onclick="finishDraw()" style="background:#28a745">그림 완료</button>
+        <button onclick="finishDraw()">그림 완료</button>
     </div>
 
     <div id="result" class="screen">
-        <h2>🏁 게임 결과</h2>
-        <div id="finalChain" style="text-align: left; margin: 20px 0; border-top: 1px solid #eee;"></div>
-        <button onclick="location.reload()" style="background:#666">다시 하기</button>
+        <h2>🏁 결과 확인</h2>
+        <div id="finalChain"></div>
+        <button onclick="location.reload()">다시 하기</button>
     </div>
+
+<script>
+    // 페이지 로드가 끝나면 실행
+    window.onload = function() {
+        console.log("게임 로드 완료");
+        const startBtn = document.getElementById('startBtn');
+        if(startBtn) {
+            startBtn.addEventListener('click', function() {
+                showScreen('player');
+            });
+        }
+    };
+
+    let gameChain = [];
+    let totalSteps = 0;
+    let currentStep = 0;
+
+    function showScreen(id) {
+        const screens = document.querySelectorAll(".screen");
+        screens.forEach(s => s.classList.remove("active"));
+        const target = document.getElementById(id);
+        if(target) target.classList.add("active");
+    }
+
+    function setPlayers(n) { showScreen("round"); }
+
+    function setRounds(n) {
+        totalSteps = n * 2;
+        gameChain = [];
+        currentStep = 0;
+        showScreen("input");
+    }
+
+    function saveText() {
+        const val = document.getElementById("textInput").value;
+        if(!val) return alert("입력해주세요!");
+        gameChain.push({ type: 'text', content: val });
+        document.getElementById("textInput").value = "";
+        next();
+    }
+
+    function finishDraw() {
+        const img = canvas.toDataURL();
+        gameChain.push({ type: 'image', content: img });
+        ctx.clearRect(0,0,300,300);
+        next();
+    }
+
+    function next() {
+        currentStep++;
+        if(currentStep >= totalSteps) endGame();
+        else showScreen("pass");
+    }
+
+    function renderStep() {
+        const last = gameChain[gameChain.length - 1];
+        if(last.type === 'text') {
+            document.getElementById("drawPreview").innerText = last.content;
+            showScreen("draw");
+        } else {
+            document.getElementById("textPreview").innerHTML = `<img src="${last.content}" width="200">`;
+            showScreen("input");
+        }
+    }
+
+    function endGame() {
+        let res = "";
+        gameChain.forEach(i => {
+            if(i.type === 'text') res += `<p>${i.content}</p>`;
+            else res += `<img src="${i.content}" width="150"><br>`;
+        });
+        document.getElementById("finalChain").innerHTML = res;
+        showScreen("result");
+    }
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.lineWidth = 3;
+    let drawing = false;
+    
+    canvas.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); });
+    canvas.addEventListener("touchmove", (e) => {
+        if(!drawing) return;
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+        ctx.stroke();
+    });
+    canvas.addEventListener("touchend", () => drawing = false);
+</script>
+</body>
+</html>
