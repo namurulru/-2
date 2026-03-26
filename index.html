@@ -55,8 +55,8 @@
         <div id="drawPreview" style="font-weight:bold; margin-bottom:10px;"></div>
         <canvas id="canvas" width="300" height="300"></canvas>
         <div class="toolbar">
-            <button id="penBtn" style="width:auto; background:#555; padding:10px;">✏️ 펜</button>
-            <button id="eraserBtn" style="width:auto; background:#888; padding:10px;">🧽 지우개</button>
+            <button id="penBtn" style="width:auto; background:#555; padding:10px;">펜</button>
+            <button id="eraserBtn" style="width:auto; background:#888; padding:10px;">지우개</button>
         </div>
         <div class="toolbar">
             <div class="color-box active" style="background: black;" data-color="black"></div>
@@ -150,10 +150,10 @@
     function renderStep() {
         const last = gameChain[gameChain.length - 1];
         if(last.type === 'text') {
-            document.getElementById("drawPreview").innerText = "제시어: " + last.content;
+            document.getElementById("drawPreview").innerText = "제시어 : " + last.content;
             showScreen("draw");
         } else {
-            document.getElementById("inputTitle").innerText = "그림 보고 해석하기";
+            document.getElementById("inputTitle").innerText = "단어 입력";
             document.getElementById("textPreview").innerHTML = `<img src="${last.content}" width="200">`;
             showScreen("input");
         }
