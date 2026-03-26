@@ -3,48 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>영어 갈틱폰</title>
+    <title>영어 갈틱폰 - 최종본</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
+        /* 기본 스타일 */
+        body { font-family: -apple-system, sans-serif; text-align: center; background: #f0f2f5; margin: 0; padding: 20px; touch-action: manipulation; }
         .screen { display: none; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .active { display: block !important; }
         
-        button { padding: 16px 28px; margin: 10px; font-size: 18px; border-radius: 15px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; width: 80%; max-width: 250px; }
+        button { padding: 16px 28px; margin: 10px; font-size: 18px; border-radius: 15px; border: none; background: #007aff; color: white; font-weight: bold; cursor: pointer; width: 80%; max-width: 250px; transition: background 0.2s; }
         button:active { background: #0056b3; transform: scale(0.98); }
 
         canvas { border: 3px solid #333; background: white; touch-action: none; border-radius: 10px; width: 300px; height: 300px; display: block; margin: 10px auto; }
+        input { padding: 15px; font-size: 18px; border-radius: 12px; border: 2px solid #ddd; width: 85%; outline: none; transition: border-color 0.3s; }
+
+        /* 🔥 흔들림 애니메이션 🔥 */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+        .shake { animation: shake 0.4s ease-in-out; border-color: #ff3b30 !important; }
+
+        /* 경고 문구 스타일 */
+        #warning { color: #ff3b30; font-size: 14px; font-weight: bold; margin-top: 8px; display: none; }
+
         .toolbar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
         .color-box { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; }
         .color-box.active { border: 3px solid #007aff; transform: scale(1.1); }
     </style>
-<style>
-    @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-}
-
-.shake {
-  animation: shake 0.2s ease-in-out 0s 2; /* 0.2초 동안 2번 흔들림 */
-}
-
-#warning {
-  color: #ff3b30;
-  font-weight: bold;
-  font-size: 14px;
-  margin-top: 5px;
-  display: none;
-}
-</style>
 </head>
 <body>
 
     <div id="start" class="screen active">
-        <h1>영어 갈틱폰</h1>
-        <p style="color: #666;">게임 규칙은 수행평가 종이를 참고하세요! </p>
-        <button id="startBtn">시작하기 </button>
+        <h1>🎮 영어 갈틱폰</h1>
+        <p style="color: #666;">문장을 쓰고 그림을 그리며<br>릴레이를 완성해보세요!</p>
+        <button id="startBtn">시작하기</button>
     </div>
 
     <div id="player" class="screen">
@@ -61,39 +57,41 @@
 
     <div id="input" class="screen">
         <h2 id="inputTitle">첫 문장 입력</h2>
-        <div id="textPreview"></div>
-        <input id="textInput" placeholder="입력하세요...">
-        <div id="warning">⚠️ 문장을 입력해주세요!</div> 
+        <div id="textPreview" style="margin-bottom: 10px;"></div>
+        <input id="textInput" placeholder="여기에 입력하세요..." autocomplete="off">
+        <div id="warning">⚠️ 내용을 입력해주세요!</div>
         <br>
-    <button id="saveTextBtn">입력 완료</button>
+        <button id="saveTextBtn">입력 완료</button>
     </div>
 
     <div id="pass" class="screen">
-        <h2>다음 사람에게 폰을 넘기세요!</h2>
+        <h2 style="color: #ff9500;">📢 폰을 넘기세요!</h2>
+        <p>다음 플레이어에게 전달한 뒤<br>아래 버튼을 누르세요.</p>
         <button id="nextPlayerBtn">준비 완료</button>
     </div>
 
     <div id="draw" class="screen">
         <h2>그림 그리기</h2>
-        <div id="drawPreview" style="font-weight:bold; margin-bottom:10px;"></div>
+        <div id="drawPreview" style="font-weight:bold; margin-bottom:10px; font-size: 1.2em;"></div>
         <canvas id="canvas" width="300" height="300"></canvas>
         <div class="toolbar">
-            <button id="penBtn" style="width:auto; background:#555; padding:10px;">펜</button>
-            <button id="eraserBtn" style="width:auto; background:#888; padding:10px;">지우개</button>
+            <button id="penBtn" style="width:auto; background:#555; padding:10px 15px;">✏️ 펜</button>
+            <button id="eraserBtn" style="width:auto; background:#888; padding:10px 15px;">🧽 지우개</button>
         </div>
         <div class="toolbar">
             <div class="color-box active" style="background: black;" data-color="black"></div>
             <div class="color-box" style="background: red;" data-color="red"></div>
             <div class="color-box" style="background: blue;" data-color="blue"></div>
             <div class="color-box" style="background: green;" data-color="green"></div>
+            <div class="color-box" style="background: orange;" data-color="orange"></div>
         </div>
-        <button id="finishDrawBtn" style="background:#28a745;">그림 완료</button>
+        <button id="finishDrawBtn" style="background:#28a745; margin-top: 15px;">그림 완료</button>
     </div>
 
     <div id="result" class="screen">
-        <h2>결과 확인</h2>
-        <div id="finalChain" style="text-align:left;"></div>
-        <button onclick="location.reload()">다시 하기</button>
+        <h2>🏁 결과 확인</h2>
+        <div id="finalChain" style="text-align:left; max-width: 300px; margin: auto;"></div>
+        <button onclick="location.reload()" style="background: #666;">다시 하기</button>
     </div>
 
 <script>
@@ -111,19 +109,15 @@
     }
 
     window.addEventListener('load', function() {
-        console.log("App Loaded");
+        // 시작하기
+        document.getElementById('startBtn').addEventListener('click', () => showScreen('player'));
 
-        const startBtn = document.getElementById('startBtn');
-        startBtn.addEventListener('click', () => showScreen('player'));
-        startBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            showScreen('player');
-        });
-
+        // 인원 선택
         document.querySelectorAll('.player-opt').forEach(btn => {
             btn.addEventListener('click', () => showScreen('round'));
         });
 
+        // 라운드 선택
         document.querySelectorAll('.round-opt').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 totalSteps = parseInt(e.target.dataset.num) * 2;
@@ -132,10 +126,17 @@
                 showScreen('input');
             });
         });
-        
+
+        // 문장 저장 (🔥 흔들림 로직 포함)
         document.getElementById('saveTextBtn').addEventListener('click', saveText);
+
+        // 다음 플레이어 준비
         document.getElementById('nextPlayerBtn').addEventListener('click', renderStep);
+
+        // 그림 완료
         document.getElementById('finishDrawBtn').addEventListener('click', finishDraw);
+
+        // 펜/지우개/색상
         document.getElementById('penBtn').addEventListener('click', setPen);
         document.getElementById('eraserBtn').addEventListener('click', setEraser);
         document.querySelectorAll('.color-box').forEach(box => {
@@ -149,9 +150,24 @@
         initCanvas();
     });
 
+    // 🔥 흔들림 및 경고 로직 함수
     function saveText() {
         const input = document.getElementById('textInput');
-        if(!input.value.trim()) return alert("내용을 적어주세요!");
+        const warning = document.getElementById('warning');
+
+        if (!input.value.trim()) {
+            // 경고 표시 및 흔들기
+            warning.style.display = "block";
+            input.classList.add('shake');
+
+            // 2초 뒤에 원래대로 (애니메이션 클래스 제거 포함)
+            setTimeout(() => {
+                warning.style.display = "none";
+                input.classList.remove('shake');
+            }, 2000);
+            return;
+        }
+
         gameChain.push({ type: 'text', content: input.value });
         input.value = "";
         next();
@@ -173,30 +189,32 @@
     function renderStep() {
         const last = gameChain[gameChain.length - 1];
         if(last.type === 'text') {
-            document.getElementById("drawPreview").innerText = "제시어 : " + last.content;
+            document.getElementById("drawPreview").innerText = "제시어: " + last.content;
             showScreen("draw");
         } else {
-            document.getElementById("inputTitle").innerText = "단어 입력";
-            document.getElementById("textPreview").innerHTML = `<img src="${last.content}" width="200">`;
+            document.getElementById("inputTitle").innerText = "그림 보고 해석하기";
+            document.getElementById("textPreview").innerHTML = `<img src="${last.content}" width="200" style="border:1px solid #ddd">`;
             showScreen("input");
         }
     }
 
     function endGame() {
         let res = "";
-        gameChain.forEach(item => {
-            if(item.type === 'text') res += `<p><b>문장:</b> ${item.content}</p>`;
-            else res += `<img src="${item.content}" width="200"><br>`;
+        gameChain.forEach((item, idx) => {
+            if(item.type === 'text') {
+                res += `<div style="margin-top:20px; color:#007aff; font-weight:bold;">${idx===0?'시작':'해석'}: ${item.content}</div>`;
+            } else {
+                res += `<img src="${item.content}" width="250" style="border:2px solid #eee; border-radius:10px; margin-top:10px;">`;
+            }
         });
         document.getElementById('finalChain').innerHTML = res;
         showScreen('result');
     }
 
-    // 캔버스 로직
     function initCanvas() {
         canvas = document.getElementById("canvas");
         ctx = canvas.getContext("2d");
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.lineCap = "round";
 
         const getXY = (e) => {
@@ -219,8 +237,8 @@
     }
 
     function changeColor(c) { currentColor = c; ctx.strokeStyle = c; setPen(); }
-    function setPen() { ctx.globalCompositeOperation = "source-over"; ctx.lineWidth = 3; }
-    function setEraser() { ctx.globalCompositeOperation = "destination-out"; ctx.lineWidth = 15; }
+    function setPen() { ctx.globalCompositeOperation = "source-over"; ctx.lineWidth = 4; }
+    function setEraser() { ctx.globalCompositeOperation = "destination-out"; ctx.lineWidth = 20; }
 </script>
 </body>
 </html>
